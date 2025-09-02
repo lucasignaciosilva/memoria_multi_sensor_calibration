@@ -31,7 +31,6 @@ pcl::PointCloud<Lidar::PointWithDist> passThrough(
 	pcl::PointCloud<Lidar::PointWithDist> const & cloud,
 	PassThroughFilter const & config
 ) {
-	std::cerr << "DEBUG aplicando filtro passtrough" << std::endl;
 	pcl::PassThrough<Lidar::PointWithDist> pass;
 	pass.setInputCloud(cloud.makeShared());
 	pass.setFilterFieldName(config.dim);
@@ -83,6 +82,7 @@ pcl::PointCloud<Lidar::PointWithDist> filterPlane(
 	plane_segmentation.setMaxIterations(config.max_iterations);
 	plane_segmentation.setInputCloud(in.makeShared());
 	plane_segmentation.segment(*inliers, *coefficients);
+	std::cerr << "DEBUG llegue a pasar los filtros" << std::endl;
 
 	// Extract non ground floor PCL
 	pcl::ExtractIndices<Lidar::PointWithDist> extract;
@@ -122,7 +122,7 @@ void visualize(std::vector<std::vector<Lidar::PointWithDist*> > const & rings) {
 	pcl::visualization::PCLVisualizer viewer;
 	for (std::size_t i = 0; i < rings.size(); ++i) {
 		pcl::PointCloud<pcl::PointXYZ> cloud = toCloud(rings.at(i));
-		viewer.addPointCloud<pcl::PointXYZ>(cloud.makeShared(), std::to_string(i));
+		viewer.addPointCloud<pcl::PointXYZ>(cloud.makeShared(), boost::to_string(i));
 		viewer.spin();
 	}
 	viewer.addCoordinateSystem();
@@ -159,9 +159,9 @@ std::vector<std::vector<Lidar::PointWithDist*> > toDistanceRing(pcl::PointCloud<
 			total_distance_ring += (*pt)->distance;
 		}
 		if (ring->size() > max_points_ring) {
-			std::cerr << "Ring good, save.." << std::endl;
 			max_points_ring = ring->size();
 			average_distance_ring = total_distance_ring/max_points_ring;
+			std::cerr << "Ring good.." << std::endl;
 		}
 	}
 	return rings;
@@ -238,6 +238,7 @@ bool processCircle(pcl::PointCloud<pcl::PointXYZ> & cloud, pcl::PointCloud<Lidar
 	seg.setOptimizeCoefficients(true);
 	seg.setMaxIterations(config.max_iterations);
 	seg.setRadiusLimits(config.min_radius, config.max_radius);
+	std::cerr << "DEBUG pasa por RANSAC" << std::endl;
 
 	// Find circle
 	pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
@@ -381,19 +382,15 @@ pcl::PointCloud<pcl::PointXYZ> keypointDetection(pcl::PointCloud<Lidar::PointWit
 	// Compute coefficients of vertical plane and extract points of vertical plane
 	pcl::PointCloud<Lidar::PointWithDist> cloud_calibration_board = filterPlane(cloud_without_ground_floor, config.calibration_board_filter);
 
-	/// Edge detection: Loop over all rings, and then over all points, and calculate distance w.r.t. neighbors.
+	// Edge detection: Loop over all rings, and then over all points, and calculate distance w.r.t. neighbors.
 	float average_distance_ring;
+	float test;
 	std::vector<std::vector<Lidar::PointWithDist*> > rings = toDistanceRing(cloud_calibration_board, average_distance_ring, config.lidar_parameters);
+	std::vector<std::vector<Lidar::PointWithDist*> > nofilterrings = toDistanceRing(in, test, config.lidar_parameters);
 	if (config.visualize) { 
-		/*/////////////TEST
-		float test;
-		pcl::PointCloud<Lidar::PointWithDist> noFilterTestClod = in;
-		std::vector<std::vector<Lidar::PointWithDist*> > nofilterrings = toDistanceRing(noFilterTestClod, test, config.lidar_parameters);
-		std::cerr << "DEBUG visualizando anillos no filtrados" << std::endl;
+			std::cerr << "DEBUG visualizando anillos no filtrados" << std::endl;
 		visualize(nofilterrings); 
-		/*/////////////TEST
-		
-		std::cerr << "DEBUG visualizando anillos filtrados" << std::endl;
+			std::cerr << "DEBUG visualizando anillos filtrados" << std::endl;
 		visualize(rings); 
 		}
 
@@ -406,7 +403,10 @@ pcl::PointCloud<pcl::PointXYZ> keypointDetection(pcl::PointCloud<Lidar::PointWit
 
 	// Circle3d fit for all four circles
 	pcl::PointCloud<pcl::PointXYZ> pattern = processCircles(circles_cloud, cloud_without_ground_floor, config.circle_detection);
-	if (config.visualize) { visualize(cloud_calibration_board, pattern, edges_cloud); }
+	if (config.visualize) { 
+			std::cerr << "DEBUG visualizando circulos" << std::endl;
+
+		visualize(cloud_calibration_board, pattern, edges_cloud); }
 
 	// Refine circle centers using calibration board geometry
 	if (config.refinement.refine) {
