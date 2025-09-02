@@ -7,6 +7,7 @@ find_package(catkin REQUIRED
 	cmake_modules
 	cv_bridge
 	image_geometry
+	image_transport
 	pcl_conversions
 	pcl_ros
 	roscpp
@@ -61,3 +62,7 @@ target_link_libraries(${PROJECT_NAME}_ros ${PROJECT_NAME} ${YAML_CPP_LIBRARIES} 
 # Ros node, depending on the ros detection library
 add_executable(${PROJECT_NAME}_node src/node.cpp)
 target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME}_ros ${YAML_CPP_LIBRARIES} ${PROJECT_NAME}_yaml ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${PCL_LIBRARIES})
+
+add_executable(disparity_normalizer_node src/disparity_normalizer_node.cpp)
+target_link_libraries(disparity_normalizer_node ${catkin_LIBRARIES})
+
