@@ -76,7 +76,7 @@ private:
         ROS_INFO("Ancho: %d; alto: %d ", width, height);
 
         pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>());
-        cloud->header.frame_id = left_info->header.frame_id;
+        cloud->header.frame_id = "zed_left_camera_optical_frame";
         cloud->width = width;
         cloud->height = height;
         cloud->is_dense = false;
@@ -86,7 +86,9 @@ private:
 
         for (int v = 0; v < height; v++) {
             for (int u = 0; u < width; u++) {
-                float disparity_value = disp_msg->image.data[v*width+u];
+                cv::Mat disp_cv = cv_bridge::toCvCopy(disp_msg->image, "32FC1")->image;
+                float disparity_value = disp_cv.at<float>(v, u);
+
 
                 if (std::isnan(disparity_value) || disparity_value <= disp_msg->min_disparity) {
                     cloud->points[idx].x = cloud->points[idx].y = cloud->points[idx].z = NAN;
