@@ -83,10 +83,10 @@ private:
         cloud->points.resize(width * height);
 
         int idx = 0;
-
+        
+        cv::Mat disp_cv = cv_bridge::toCvCopy(disp_msg->image, "32FC1")->image;
         for (int v = 0; v < height; v++) {
             for (int u = 0; u < width; u++) {
-                cv::Mat disp_cv = cv_bridge::toCvCopy(disp_msg->image, "32FC1")->image;
                 float disparity_value = disp_cv.at<float>(v, u);
 
 
@@ -99,9 +99,9 @@ private:
                 cv::Point3d pt;
                 model.projectDisparityTo3d(cv::Point2d(u, v), disparity_value, pt);
 
-                cloud->points[idx].x = pt.x;
-                cloud->points[idx].y = pt.y;
-                cloud->points[idx].z = pt.z;
+                cloud->points[idx].x = -pt.x;
+                cloud->points[idx].y = -pt.y;
+                cloud->points[idx].z = -pt.z;
 
                 cv::Vec3b color = left_cv->image.at<cv::Vec3b>(v, u);
                 cloud->points[idx].r = color[2];
