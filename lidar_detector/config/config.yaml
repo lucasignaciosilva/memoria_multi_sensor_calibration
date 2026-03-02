@@ -24,7 +24,7 @@ circle_detection:                                # Parameters to fit circles in 
     distance_threshold: 0.03
     max_iterations: 1000
     min_radius: 0.06                             # Minimum radius to search for circles
-    max_radius: 0.1                              # Maximum radius to search for circles
+    max_radius: 0.2                              # Maximum radius to search for circles
     cluster_iterations: 100
     max_points_within_radius: 0                  # Maximum nr of points to be allowed within radius (radius_max_points), which determines if circle proposal is valid.
     radius_max_points: 0.03                      # Circle radius to count number of points

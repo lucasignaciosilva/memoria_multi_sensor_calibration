@@ -1,0 +1,35 @@
+# Parametros de configuracion para deteccion de tabla de calibracion
+plane:
+  distance_threshold: 0.01
+  max_iterations: 2000
+  min_inliers: 300
+
+# Parametros de deteccion de plano asociado a tabla de calibracion
+table:
+  min_points: 200
+# Parametros de visualizacion de normal de planos detectados
+normal:
+  arrow_length: 0.3
+  scale_x: 0.01
+  scale_y: 0.02
+
+# Parametros de clustering de plano
+clustering:
+  tolerance: 0.04
+  min_size: 30
+  max_size: 800
+
+# Parametros de caracterizacion de circulos de tabla de calibracion
+circle:
+  min_radius: 0.06
+  max_radius: 0.09
+  alpha: 0.8
+
+# Sincronizacion de topicos de PCL original e interpolada
+sync:
+  queue_size: 10
+
+# Topicos ROS
+topics:
+  raw: "/velodyne_points"
+  interpolated: "/velodyne_points_interpolated"
