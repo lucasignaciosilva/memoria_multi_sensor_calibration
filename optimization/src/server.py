@@ -30,6 +30,11 @@ from optimization.calibration_board import *
 from optimization.helper_functions import *
 from optimization.config import *
 from optimization.optimize import joint_optimization,remove_non_visible_detections_in_reference_sensor
+
+# ros_numpy in ROS Noetic still references deprecated NumPy aliases such as np.float.
+if not hasattr(np, "float"):
+    np.float = float
+
 import ros_numpy
 
 def print_service_call_message(msg):
@@ -78,7 +83,9 @@ class optimizer_node():
 
         # ROS parameters
         rospy.set_param("~calibration_mode", 3)
-        rospy.set_param("~reference_sensor", 'velodyne')
+        # The optimizer matches the reference sensor against the incoming frame_id names.
+        # In this workspace the lidar frame_id is /velodyne_points_interpolated.
+        rospy.set_param("~reference_sensor", '/velodyne_points_interpolated')
         rospy.set_param("~correspondences", 'known')
         rospy.set_param("~export_detections_to_files", True)
         rospy.set_param("~visualise", True)
